@@ -1,0 +1,4 @@
+include README.md 
+recursive-include captive/app *.py
+recursive-include captive/app/templates *.html
+recursive-include captive/app/static *.css *.png

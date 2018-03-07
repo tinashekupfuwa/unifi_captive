@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+        <p> Для получения по SMS кода доступа введите номер Вашего мобильного телефона: </p>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                +7 {{ form.phone(size=10) }}<br>
+                {% for error in form.phone.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>{{ form.submit() }}</p>
+        </form>
+    </div>
+{% endblock %}

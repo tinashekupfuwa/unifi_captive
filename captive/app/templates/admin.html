@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Users: {{ mac }}</h1>
+    <hr>
+    {% for user in users %}
+    <p>
+      user.id:  <a href="/user/{{ user.id }}"><b>{{ user.id }}</b></a>, mac: <b>{{ user.mac }}</b>
+    </p>
+    {% endfor %}
+{% endblock %}
