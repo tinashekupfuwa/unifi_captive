@@ -17,8 +17,8 @@ class User(UserMixin, db.Model):
 
 class Auth(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    phone = db.Column(db.Integer)
-    pin = db.Column(db.Integer)
+    phone = db.Column(db.String(10))
+    pin = db.Column(db.String(6))
     ap_mac = db.Column(db.String(17))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))

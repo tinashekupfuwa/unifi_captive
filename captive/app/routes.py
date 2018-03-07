@@ -93,19 +93,17 @@ def register():
             db.session.add(user)
             db.session.commit()
             user = User.query.filter_by(mac = mac).first()
-#debug  
-        user_id = user.id    
+        
         phone = form.phone.data
         pin = generate_pin()        
-        print (user_id, phone, pin, mac, ap_mac)
-# end debug
+        print (user.id, phone, pin, mac, ap_mac) #debug
 
         auth = Auth(phone = phone, pin = pin, ap_mac = ap_mac, auth = user)
         db.session.add(auth)
         db.session.commit()
         
-        if(send_sms(str(phone),str(pin))):
-            msg = 'SMS with a code (' + str(pin) + ') has been sent'
+        if(send_sms(phone, pin)):
+            msg = 'SMS with a code (' + pin + ') has been sent'
             print(msg)
             flash(msg) 
         else:
@@ -140,7 +138,7 @@ def admin():
 def generate_pin():
     r = []
     r = [str(randint(0,9)) for x in range(6)]
-    return int(''.join(r))
+    return ''.join(r)
 
 
 def get_guest_mac():
@@ -156,7 +154,7 @@ def get_ap_mac():
 
 
 def send_sms(dest,string):
-
+    """
     parts, encoding_flag, msg_type_flag = smpplib.gsm.make_parts(string)
     dest = '7' + dest
 
@@ -188,8 +186,10 @@ def send_sms(dest,string):
     )
     print(pdu.sequence)
     client.disconnect()
+    """
     return True
-"""
+    
+    """
 # the following line needs your Twilio Account SID and Auth Token
     client = Client(app.config['TWILIO_ACCOUNT_SID'], app.config['TWILIO_AUTH_TOKEN'])
 
@@ -202,7 +202,7 @@ def send_sms(dest,string):
     )
     client.messages.create(to=phone_str, from_=app.config['TWILIO_PHONE_NUMBER'], body=pin_str)
     return True
-"""
+    """
 
 def is_it_too_late(time):
     return True

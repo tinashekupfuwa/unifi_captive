@@ -6,23 +6,27 @@
         <title>ACME WiFi</title>
         {% endif %}
         <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+        <link rel="stylesheet" media="screen" href ="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}">
+        <meta name="viewport" content = "width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <div>
-            <P><img src="{{ url_for('static',filename='logo.png')}}"></P>
+        <div class="container">
+            <div class="logo">
+                <P><img src="{{ url_for('static',filename='logo.png') }}"></P>
+            </div>
+            <div class="alert alert-warning">    
+                <p>Добро пожаловать в сеть ACME WiFi!</p><br>
+                <p>Для доступа к сети необходимо авторизоваться и получить код доступа</p>
+            </div>
+            <hr>
+            {% with messages = get_flashed_messages() %}
+            {% for message in messages %}
+            <div class="alert alert-info">{{ message }}</div>
+            {% endfor %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+            <hr>
         </div>
-        <hr>    
-        <div class=page>
-            <p>Добро пожаловать в сеть ACME WiFi!</p><br>
-            <p>Для доступа к сети необходимо авторизоваться и получить код доступа</p>
-        </div>
-        <hr>
-        {% with messages = get_flashed_messages() %}
-        {% for message in messages %}
-        <div class="flash">{{ message }}</div>
-        {% endfor %}
-{% endwith %}
-        {% block content %}{% endblock %}
-        <hr>
     </body>
 </html>

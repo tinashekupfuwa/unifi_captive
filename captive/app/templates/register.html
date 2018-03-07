@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div>
-        <p> Для получения по SMS кода доступа введите номер Вашего мобильного телефона: </p>
+    <div class="form-group">
+        <div class="alert alert-info">Для получения по SMS кода доступа введите номер Вашего мобильного телефона: </div>
         <form action="" method="post">
             {{ form.hidden_tag() }}
             <p>
-                +7 {{ form.phone(size=10) }}<br>
+                <b>+7</b> {{ form.phone(size=10, type="number", class="input-lg") }}<br>
                 {% for error in form.phone.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </p>
-            <p>{{ form.submit() }}</p>
+            <p>{{ form.submit(class="btn btn-success") }}</p>
         </form>
     </div>
 {% endblock %}
