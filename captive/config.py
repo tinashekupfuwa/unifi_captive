@@ -22,7 +22,8 @@ class Config(object):
 
     TIME_QOUTE = '60'
 
-    SMPP_SERVER = '172.20.1.6'
+#    SMPP_SERVER = '172.20.1.6'
+    SMPP_SERVER = '212.92.99.4'
     SMPP_PORT = 4442
     SMPP_USER = 'vbrr1:d5:deb51'
     SMPP_PASSW = 'MFj7c19A'

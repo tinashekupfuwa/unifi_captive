@@ -154,7 +154,8 @@ def get_ap_mac():
 
 
 def send_sms(dest,string):
-    """
+    
+    string = 'PIN код для регистрации в WiFi сети: ' + string
     parts, encoding_flag, msg_type_flag = smpplib.gsm.make_parts(string)
     dest = '7' + dest
 
@@ -186,7 +187,7 @@ def send_sms(dest,string):
     )
     print(pdu.sequence)
     client.disconnect()
-    """
+    
     return True
     
     """

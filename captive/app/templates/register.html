@@ -6,7 +6,7 @@
         <form action="" method="post">
             {{ form.hidden_tag() }}
             <p>
-                <b>+7</b> {{ form.phone(size=10, type="number", class="input-lg") }}<br>
+                <b>+7</b> {{ form.phone(size=15, type="tel", placeholder="9991234567", class="input-lg") }}<br>
                 {% for error in form.phone.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
