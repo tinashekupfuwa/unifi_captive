@@ -71,4 +71,21 @@ Collecting Werkzeug (from captive-protal===0.1)
 Successfully installed Flask-0.12.2 Flask-Login-0.4.1 Flask-Migrate-2.1.1 Flask-SQLAlchemy-2.3.2 Flask-WTF-0.14.2 Jinja2-2.10 Mako-1.0.7 MarkupSafe-1.0 SQLAlchemy-1.2.5 WTForms-2.1 Werkzeug-0.14.1 alembic-0.9.9 captive-protal certifi-2018.1.18 chardet-3.0.4 click-6.7 idna-2.6 itsdangerous-0.24 python-dateutil-2.7.0 python-editor-1.0.3 pyunifi-2.13 requests-2.18.4 six-1.11.0 urllib3-1.22
 ```
 
+Библиотека python-smpplib отсутствует в репозиториях PIP, поэтому ставим отдельно с github-а
 
+```
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# pip install git+https://github.com/podshumok/python-smpplib.git
+Collecting git+https://github.com/podshumok/python-smpplib.git
+  Cloning https://github.com/podshumok/python-smpplib.git to /tmp/pip-tkhjpgrb-build
+Requirement already satisfied (use --upgrade to upgrade): six in ./venv/lib/python3.5/site-packages (from python-smpplib===1.0.1)
+Installing collected packages: python-smpplib
+  Running setup.py install for python-smpplib ... done
+Successfully installed python-smpplib-1.0.1
+```
+
+Далее нужно инициализировать базу данных SQLite
+```
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# export FLASK_APP=captive/__init__.py
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# flask db init
+
+```
