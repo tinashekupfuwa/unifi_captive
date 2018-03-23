@@ -9,6 +9,6 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=['alembic', 'Flask', 'Flask-Login', 'Flask-Migrate', 'Flask-SQLAlchemy', 'Flask-WTF',
-    'Jinja2', 'Mako', 'pyunifi', 'requests', 'SQLAlchemy', 'urllib3', 'Werkzeug', 'WTForms', 'smpplib'],
+    'Jinja2', 'Mako', 'pyunifi', 'requests', 'SQLAlchemy', 'urllib3', 'Werkzeug', 'WTForms' ],
     entry_points={ 'flask.commands': [ 'db=flask_migrate.cli:db' ], },
 )
