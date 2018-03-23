@@ -29,3 +29,18 @@ http://127.0.0.1:5000/user/6
 совместить с Unifi контроллером  
 и сделать красиво
 красота наводится с помощью стилей отсюда: https://getbootstrap.com/docs/3.3/getting-started/
+
+
+Нашел реальную точку: UniFi AP-AC-PRO
+настроил контроллер на мой external-portal и вот какой запрос я вижу от клиента:
+GET /guest/s/default/?id=70:ef:00:df:d0:76&ap=78:8a:20:4b:b6:fd&t=1521797657&url=http://captive.apple.com%2fhotspot-detect.html&ssid=aaaaaaaa HTTP/1.0
+
+красотень
+id=70:ef:00:df:d0:76  -  mac address клиента
+ap=78:8a:20:4b:b6:fd  -  mac address AP
+t=1521797657  -  очевидно время в формате unix epoch
+url=http://captive.apple.com/hotspot-detect.html - URL куда ломится клиент
+
+но главное тут - это путь по которому редиректит клиента: /guest/s/default/
+теперь надо подумать что с ним делать
+подозреваю, что default - это название домена на контроллере
