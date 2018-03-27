@@ -183,7 +183,8 @@ def send_sms(dest,string):
             lambda pdu: sys.stdout.write('delivered {}\n'.format(pdu.receipted_message_id)))
 
     client.connect()
-    client.bind_transceiver(system_id=app.config['SMPP_USER'], password=app.config['SMPP_PASSW'])
+#    client.bind_transceiver(system_id=app.config['SMPP_USER'], password=app.config['SMPP_PASSW'])
+    client.bind_transmitter(system_id=app.config['SMPP_USER'], password=app.config['SMPP_PASSW'])
 
     print ('Sending SMS {} to {}'.format(string, dest))
     for part in parts:
