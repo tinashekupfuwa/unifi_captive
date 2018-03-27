@@ -14,6 +14,18 @@ import smpplib.consts
 from pyunifi.controller import Controller
 
 
+#@app.route('/guest/s/default/')
+@app.route('/guest/s/<domain>/')
+def init(domain):
+#def init():
+    query_string = request.query_string
+    mac = request.args.get('id')    
+    ap_mac = request.args.get('ap')
+    print ('init query_string: {}, mac: {}, ap_mac: {}'.format(query_string, mac, ap_mac))
+    return redirect(url_for('register', id = mac, ap = ap_mac, domain = domain))
+#    return redirect(url_for('register', id = mac, ap = ap_mac))
+   
+
 @app.route('/index')
 @login_required
 def index():    
@@ -155,6 +167,9 @@ def get_ap_mac():
 
 def send_sms(dest,string):
     
+    if app.config['SMS_ENABLE'] == 0:
+        return True
+
     string = 'PIN код для регистрации в WiFi сети: ' + string
     parts, encoding_flag, msg_type_flag = smpplib.gsm.make_parts(string)
     dest = '7' + dest
