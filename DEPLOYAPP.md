@@ -85,7 +85,30 @@ Successfully installed python-smpplib-1.0.1
 
 Далее нужно инициализировать базу данных SQLite
 ```
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# export FLASK_APP=captive/__init__.py
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# flask db init
-
+(venv) ✔ ~/python/flask/captive [master|✚ 2] 
+17:19 $ export FLASK_APP=captive/__init__.py
+(venv) ✔ ~/python/flask/captive [master|✚ 2] 
+17:19 $ flask db init
+  Creating directory /home/nryzhkov/python/flask/captive/migrations ... done
+  Creating directory /home/nryzhkov/python/flask/captive/migrations/versions ... done
+  Generating /home/nryzhkov/python/flask/captive/migrations/script.py.mako ... done
+  Generating /home/nryzhkov/python/flask/captive/migrations/README ... done
+  Generating /home/nryzhkov/python/flask/captive/migrations/alembic.ini ... done
+  Generating /home/nryzhkov/python/flask/captive/migrations/env.py ... done
+  Please edit configuration/connection/logging settings in '/home/nryzhkov/python/flask/captive/migrations/alembic.ini' before proceeding.
+(venv) ✔ ~/python/flask/captive [master|✚ 2…4]  
+17:20 $ flask db migrate
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.autogenerate.compare] Detected added table 'user'
+INFO  [alembic.autogenerate.compare] Detected added index 'ix_user_mac' on '['mac']'
+INFO  [alembic.autogenerate.compare] Detected added table 'auth'
+INFO  [alembic.autogenerate.compare] Detected added index 'ix_auth_timestamp' on '['timestamp']'
+  Generating /home/nryzhkov/python/flask/captive/migrations/versions/920de77b9b2e_.py ... done
+(venv) ✔ ~/python/flask/captive [master|✚ 3…5] 
+17:20 $ flask db upgrade
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 920de77b9b2e, empty message
 ```
+если при миграции лезут ошибки - достаточно грохнуть старую базу данных *captive/app.db*
