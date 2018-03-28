@@ -21,6 +21,7 @@ class Auth(db.Model):
     pin = db.Column(db.String(6))
     ap_mac = db.Column(db.String(17))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    logged_in = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
