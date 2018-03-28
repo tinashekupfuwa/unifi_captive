@@ -14,16 +14,13 @@ import smpplib.consts
 from pyunifi.controller import Controller
 
 
-#@app.route('/guest/s/default/')
 @app.route('/guest/s/<domain>/')
 def init(domain):
-#def init():
     query_string = request.query_string
     mac = request.args.get('id')    
     ap_mac = request.args.get('ap')
     print ('init query_string: {}, mac: {}, ap_mac: {}'.format(query_string, mac, ap_mac))
     return redirect(url_for('register', id = mac, ap = ap_mac, domain = domain))
-#    return redirect(url_for('register', id = mac, ap = ap_mac))
    
 
 @app.route('/index')
