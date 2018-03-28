@@ -18,17 +18,26 @@ WTForms:
 http://wtforms.simplecodes.com/docs/0.6.1/fields.html  
 http://exploreflask.com/en/latest/forms.html
 
+
+----
+
+### Модель DB приложения
+
+![sql.designer.xml](http://zabbix.msk.vbrr.loc:3000/nryzhkov/unifi_captive/raw/master/captive.sql.schema.png)
+
+Модель нарисована в DB Modeler: http://ondras.zarovi.cz/sql/demo/  
+исходник sql.designer.xml
+
 На данный момент работает регистрация, генерация PIN и логин  
 ссылка на регистрацию должна содержать параметры id и ap (mac адреса клиента и точки соответственно)  
 http://127.0.0.1:5000/?ap=12:23:34:45:56:ff&id=33:33:33:33:33:55
 
-для отладки сделана страницу с индексом клиента  
+для отладки сделана страница с индексом клиента  
 http://127.0.0.1:5000/user/6
 
-отсталось по минимум реализовать отправку PIN по SMS  
-совместить с Unifi контроллером  
-и сделать красиво
-красота наводится с помощью стилей отсюда: https://getbootstrap.com/docs/3.3/getting-started/
+отсталось по минимум реализовать отправку PIN по SMS  (сделано)  
+совместить с Unifi контроллером  (сделано)   
+и сделать красиво (относительно красиво получилось расскрасить темплейты ботстрапом отсюда:   https://getbootstrap.com/docs/3.3/getting-started/)
 
 
 
