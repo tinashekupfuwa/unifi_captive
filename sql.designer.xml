@@ -48,12 +48,18 @@
 <part>id</part>
 </key>
 </table>
-<table x="451" y="254" name="Auth">
+<table x="475" y="163" name="Auth">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="phone" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="logged_in" null="1" autoincrement="0">
+<datatype>INTEGER(1)</datatype>
+<default>NULL</default></row>
+<row name="timestamp" null="1" autoincrement="0">
+<datatype>DATETIME</datatype>
 <default>NULL</default></row>
 <row name="pin" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
@@ -61,11 +67,17 @@
 <row name="ap_mac" null="1" autoincrement="0">
 <datatype>VARCHAR(17)</datatype>
 <default>NULL</default></row>
-<row name="timestamp" null="1" autoincrement="0">
-<datatype>DATETIME</datatype>
+<row name="ip_addr" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="logged_in" null="1" autoincrement="0">
-<datatype>INTEGER(1)</datatype>
+<row name="requested_url" null="1" autoincrement="0">
+<datatype>VARCHAR(256)</datatype>
+<default>NULL</default></row>
+<row name="domain" null="1" autoincrement="0">
+<datatype>VARCHAR(64)</datatype>
+<default>NULL</default></row>
+<row name="ssid" null="1" autoincrement="0">
+<datatype>VARCHAR(64)</datatype>
 <default>NULL</default></row>
 <row name="user_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
