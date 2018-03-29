@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 343b085ee0f6
+Revision ID: 8bb9c27328b6
 Revises: 
-Create Date: 2018-03-05 17:56:08.813036
+Create Date: 2018-03-29 15:52:33.799553
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '343b085ee0f6'
+revision = '8bb9c27328b6'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,10 +26,15 @@ def upgrade():
     op.create_index(op.f('ix_user_mac'), 'user', ['mac'], unique=True)
     op.create_table('auth',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('phone', sa.Integer(), nullable=True),
-    sa.Column('pin', sa.Integer(), nullable=True),
-    sa.Column('ap_mac', sa.String(length=17), nullable=True),
+    sa.Column('phone', sa.String(length=10), nullable=True),
+    sa.Column('logged_in', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('pin', sa.String(length=6), nullable=True),
+    sa.Column('ap_mac', sa.String(length=17), nullable=True),
+    sa.Column('ip_addr', sa.String(length=39), nullable=True),
+    sa.Column('requested_url', sa.String(length=256), nullable=True),
+    sa.Column('domain', sa.String(length=64), nullable=True),
+    sa.Column('ssid', sa.String(length=64), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')

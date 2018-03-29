@@ -14,14 +14,17 @@ class User(UserMixin, db.Model):
     	return True
 
 
-
 class Auth(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     phone = db.Column(db.String(10))
+    logged_in = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     pin = db.Column(db.String(6))
     ap_mac = db.Column(db.String(17))
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    logged_in = db.Column(db.Integer)
+    ip_addr = db.Column(db.String(39))
+    requested_url = db.Column(db.String(256))
+    domain = db.Column(db.String(64))
+    ssid = db.Column(db.String(64))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):

@@ -3,6 +3,8 @@
 {% block content %}
     <div class="alert alert-success"><p>Ваше устройство успешно активировано!</b></p></div>
     <hr>
+    <div class="btn btn-default"><p><a href="{{ requested_url }}" >Войти в интернет</a></p></div>
+    <hr>
     <div><p><a href="{{ url_for('logout') }}">Log out</a></p></div>
-    <div><p><a href="{{ url_for('admin') }}">admin</a></p></div>
+    <div><p><a href="{{ url_for('admin') }}">admin</a></p></div>    
 {% endblock %}

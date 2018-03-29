@@ -22,7 +22,7 @@ class Config(object):
 
     TIME_QOUTE = '60'
 
-    SMS_ENABLE = 1
+    SMS_ENABLE = 0
     SMPP_SERVER = '212.92.99.4'
     SMPP_PORT = 4442
     SMPP_USER = 'vbrr1:d5:deb51'

@@ -4,7 +4,6 @@ from captive.app import app, db
 from captive.app.forms import LoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user, login_required
 from captive.app.models import User, Auth
-from random import randint
 #from twilio.rest import Client
 import smpplib.gsm
 import smpplib.client
@@ -13,20 +12,25 @@ import smpplib.consts
 #import logging
 from pyunifi.controller import Controller
 
+from random import randint
+from urllib.parse import unquote
+import datetime
 
+# UnifiController does redirect clients to a predidefined URL /guest/s/<domain>/ where default <domain> is "default"
+# this function just enriches the query with that domain and then redirects to /register view with all the initial query values
 @app.route('/guest/s/<domain>/')
 def init(domain):
-    query_string = request.query_string
-    mac = request.args.get('id')    
-    ap_mac = request.args.get('ap')
-    print ('init query_string: {}, mac: {}, ap_mac: {}'.format(query_string, mac, ap_mac))
-    return redirect(url_for('register', id = mac, ap = ap_mac, domain = domain))
-   
+    return redirect(url_for('register', domain=domain) + '&' + request.query_string.decode('utf8'))    
+
 
 @app.route('/index')
 @login_required
-def index():    
-    return render_template('index.html', title='Home')
+def index():   
+    user = User.query.filter_by(id=current_user.get_id()).first()
+    auth = Auth.query.filter_by(auth=user).first() 
+    requested_url = unquote(auth.requested_url)
+    print (requested_url)
+    return render_template('index.html', title='Home', requested_url=requested_url)
 	
 
 @app.route('/logout')
@@ -37,7 +41,16 @@ def logout():
     user = User.query.filter_by(id=current_user.get_id()).first()
     auth = Auth.query.filter_by(auth=user).first()
     print("logout user id:{}, mac:{}, ap_mac:{}".format(current_user.get_id(), user.mac, auth.ap_mac))
+
+    auth.logged_in = 0
+    db.session.commit()
     logout_user()
+
+    c = Controller(app.config['UNIFI_WLC_IP'], app.config['UNIFI_WLC_USER'], 
+            app.config['UNIFI_WLC_PASSW'], app.config['UNIFI_WLC_PORT'], app.config['INIFI_WLC_VER'], 
+            app.config['UNIFI_WLC_SITE_ID'], app.config['UNIFI_WLC_SSL_VERIFY'])
+    c.unauthorize_guest(user.mac)
+
     return redirect(url_for('register', id = user.mac, ap = auth.ap_mac))
 
 
@@ -58,14 +71,17 @@ def login():
             flash('incorrect PIN')
             print('Некорректный PIN')
             return redirect(url_for('login'))
-        elif not is_it_too_late(auth.timestamp):
+        elif not checkPinNotEpired(auth.timestamp):
             flash('outdated PIN')
             print('Просроченный PIN')
             return redirect(url_for('login'))
 
+        auth.logged_in = 1
+        db.session.commit()
         user = User.query.filter_by(id=auth.user_id).first()
+
         login_user(user, remember=True)
- 
+        
         # authorize on an UniFi controller       
         c = Controller(app.config['UNIFI_WLC_IP'], app.config['UNIFI_WLC_USER'], 
             app.config['UNIFI_WLC_PASSW'], app.config['UNIFI_WLC_PORT'], app.config['INIFI_WLC_VER'], 
@@ -84,15 +100,25 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
-# get context data (i.e. querry string from a unifi controller) and retrieve mac and ap_mac   
-    query_string = request.query_string
+    query_string = request.query_string    
+
     mac = request.args.get('id')    
     ap_mac = request.args.get('ap')
-    print ('query_string: {}, mac: {}, ap_mac: {}'.format(query_string, mac, ap_mac))
+    domain = request.args.get('domain')
+    ssid = request.args.get('ssid')
+    requested_url = request.args.get('url')
+    ip_addr = request.remote_addr
+
+    print ('query_string: {}\n mac: {}, ap_mac: {}; ip address: {}\n domain: {}, ssid: {}, requested_url: {}'.\
+        format(query_string, mac, ap_mac, ip_addr, domain, ssid, requested_url))
 
     if not query_string:
         mac = get_guest_mac()
         ap_mac = get_ap_mac()
+
+# make sure this user (mac) was not logged in recently
+    if UserWasLoggedInRecently(mac):
+        return redirect((url_for)('index'))
 
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -104,10 +130,10 @@ def register():
             user = User.query.filter_by(mac = mac).first()
         
         phone = form.phone.data
-        pin = generate_pin()        
-        print (user.id, phone, pin, mac, ap_mac) #debug
+        pin = generate_pin()                
+        print (user.id, phone, pin, ap_mac, ip_addr, requested_url, domain, ssid) #debug
 
-        auth = Auth(phone = phone, pin = pin, ap_mac = ap_mac, auth = user)
+        auth = Auth(phone = phone, pin = pin, ap_mac = ap_mac, ip_addr = ip_addr, requested_url = requested_url, domain = domain, ssid = ssid, auth = user)
         db.session.add(auth)
         db.session.commit()
         
@@ -118,7 +144,7 @@ def register():
         else:
             print('something goes wrong')
             db.session.rollback()            
-            return redirect(url_for('register', id = mac, ap = ap_mac))
+            return redirect(url_for('register') + '?' + query_string.decode('utf8'))             
 
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
@@ -180,7 +206,6 @@ def send_sms(dest,string):
             lambda pdu: sys.stdout.write('delivered {}\n'.format(pdu.receipted_message_id)))
 
     client.connect()
-#    client.bind_transceiver(system_id=app.config['SMPP_USER'], password=app.config['SMPP_PASSW'])
     client.bind_transmitter(system_id=app.config['SMPP_USER'], password=app.config['SMPP_PASSW'])
 
     print ('Sending SMS {} to {}'.format(string, dest))
@@ -218,5 +243,15 @@ def send_sms(dest,string):
     return True
     """
 
-def is_it_too_late(time):
+def checkPinNotEpired(time):
     return True
+
+def UserWasLoggedInRecently(mac):
+    user = User.query.filter_by(mac = mac).first()
+    if user is not None:
+        auth = Auth.query.filter_by(auth=user).order_by(Auth.timestamp.desc()).first()
+        CurrentTime = datetime.datetime.utcnow()
+        if int(auth.logged_in) > 0:
+            if (auth.timestamp + datetime.timedelta(minutes=int(app.config['TIME_QOUTE'])) > CurrentTime):        
+                return True
+    return False
