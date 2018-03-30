@@ -27,15 +27,14 @@ def init(domain):
 @login_required
 def index():   
     user = User.query.filter_by(id=current_user.get_id()).first()
-    auth = Auth.query.filter_by(auth=user).first() 
+    auth = Auth.query.filter_by(auth=user).order_by(Auth.timestamp.desc()).first()
     requested_url = unquote(auth.requested_url)
     print (requested_url)
     return render_template('index.html', title='Home', requested_url=requested_url)
-	
+
 
 @app.route('/logout')
 def logout():
-
     if not current_user.is_authenticated: 
         return
     user = User.query.filter_by(id=current_user.get_id()).first()
@@ -179,13 +178,13 @@ def generate_pin():
 def get_guest_mac():
     # will be retrieved from a controller url context
     # so now a test mac would be hardcoded
-    return "aa:22:ee:44:55:66"
+    return "aa:aa:aa:aa:aa:aa"
 
 
 def get_ap_mac():
     # will be retrieved from a controller url context
     # so now a test mac would be hardcoded
-    return "aa:bb:cc:dd:ee:ff"
+    return "bb:bb:bb:bb:bb:bb"
 
 
 def send_sms(dest,string):
