@@ -12,10 +12,10 @@ class Config(object):
     TWILIO_AUTH_TOKEN = 'faaaaaaaaaaaaaaaaaaaaaaaaaaaaaac'
     TWILIO_PHONE_NUMBER = '+12602222222'
 
-    UNIFI_WLC_IP = '10.2.1.96'
+    UNIFI_WLC_IP = '10.2.3.4'
     UNIFI_WLC_PORT = '8443'
     UNIFI_WLC_USER = 'admin_api'
-    UNIFI_WLC_PASSW = 'API_Pa$$w0rd1'
+    UNIFI_WLC_PASSW = 'Pa$$w0rd'
     INIFI_WLC_VER = 'v5'
     UNIFI_WLC_SITE_ID = 'default'
     UNIFI_WLC_SSL_VERIFY = False
@@ -23,8 +23,8 @@ class Config(object):
     TIME_QOUTE = '60'
 
     SMS_ENABLE = 0
-    SMPP_SERVER = '212.92.99.4'
-    SMPP_PORT = 4442
-    SMPP_USER = 'vbrr1:d5:deb51'
-    SMPP_PASSW = 'MFj7c19A'
-    SMPP_SOURCE = 'VBRR_RETAIL'
+    SMPP_SERVER = '22.22.22'
+    SMPP_PORT = 44444
+    SMPP_USER = 'smppuser'
+    SMPP_PASSW = 'smppasw'
+    SMPP_SOURCE = 'smpp_source'
