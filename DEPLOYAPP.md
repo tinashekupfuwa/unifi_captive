@@ -164,8 +164,16 @@ To activate the new configuration, you need to run:
 
 Готово! Наше приложение должно заработать на 80-м порту
 
+
+-----
+
+
 ## Установка и настройка контроллера UniFi
 
+Контроллер может быть установлен отдельно от приложения.  
+Одно единственное требование: приложение должно иметь доступ к контроллеру по порту 8443 для авторизации пользователей.
+
+#### Устанока контроллера на Ubuntu Linux 16.04
 Проходим по ссылке https://www.ubnt.com/download/unifi и выбираем версию контроллера
 Скачиваем контроллер
 ```
@@ -237,4 +245,43 @@ Do you want to continue? [Y/n] Y
 
 Нажимаем "Y" устанавливаем и заходим на Unifi Wizard браузером по ссылке:
 > https://wlc-srv:8443/manage/wizard/
+
+
+#### Настройка контроллера для использования External Captive Portal
+В свежеустановленном контроллере проходим Wizard, устанавливаем пароль для пользователя admin 
+
+
+##### Добавляем пользователя для API
+Далее необходимо создать нового пользователя, под которым наше приложение будет управлять авторизацией пользователей. Для чего идем [Admins] -> [Add New Admin]
+
+Теперь нужно заполнить соответствующие поля в файле **captive/config.py**:
+```
+    UNIFI_WLC_IP = '10.0.1.2'
+    UNIFI_WLC_PORT = '8443'
+    UNIFI_WLC_USER = 'admin_api'
+    UNIFI_WLC_PASSW = 'verystrongpassworg'
+    INIFI_WLC_VER = 'v5'
+    UNIFI_WLC_SITE_ID = 'default'
+    UNIFI_WLC_SSL_VERIFY = False
+
+```
+##### Настройка Guest Control
+
+Идем в меню GuestControl    
+Guest Portal : Enable Guest Portal  
+Authentication : External portal server  
+Custom Portal IPv4 Address : IP address на котором мы запустили apache (10.0.1.2)  
+
+Возможно в вашем сценарии так же нужно будет поднастроить **Access Control**    
+Например по умолчанию после авторизации точка не пускает клиента в сеть 192.168/16, что может поставить в тупик при тестировании. Ну по крайней мере я на это попался, поэтому и предупреждаю
+
+##### Создание гостевой сети
+Идем в меню Wireless Networks  
+Нажимаем на Create New Wireless Network и создаем сеть с следующими параметрами:  
+Name/SSID : YORGWARD
+Enabled : Yes
+Security : Open
+Guest Policy : Yes
+
+На этом все. Остальное в мануле по UniFi контроллеру
 
