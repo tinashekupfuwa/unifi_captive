@@ -2,8 +2,17 @@
 
 ### Disclaimer: Я не настоящий DevOps, да даже и не знаком ни с одним из них. Так что на зрелость подхода не претендую
 
-Приложение публикуется с помощью web-сервера **apache2** и модуля **wsgi** 
-для простоты и удобства разместим его в папке */var/www/FLASKAPP*
+## Установка приложения
+
+#### 1. Установка необходимых пакетов
+Приложение публикуется с помощью web-сервера **apache2** и модуля **wsgi** для python3
+Вероятно **apache2** уже есть в системе, а вот модуля **wsgi** может и не быть. В любом случае следующая команда инсталирует и то и другое. Заодно установим **git** и модуль **venv** для **python3**:  
+```
+root@aws-ryzhkov2:# apt install apache2 libapache2-mod-wsgi-py3 git python3-venv
+```
+
+#### 2. Установка приложения, виртуального окружения и зависимостей
+Для простоты и удобства разместим наше приложение в папке */var/www/FLASKAPP*
 Доступ в эту папку требует root-овых привелегий, но как говорится для поиграться и так сойдет
 
 
@@ -70,6 +79,9 @@ Collecting Werkzeug (from captive-protal===0.1)
     
 Successfully installed Flask-0.12.2 Flask-Login-0.4.1 Flask-Migrate-2.1.1 Flask-SQLAlchemy-2.3.2 Flask-WTF-0.14.2 Jinja2-2.10 Mako-1.0.7 MarkupSafe-1.0 SQLAlchemy-1.2.5 WTForms-2.1 Werkzeug-0.14.1 alembic-0.9.9 captive-protal certifi-2018.1.18 chardet-3.0.4 click-6.7 idna-2.6 itsdangerous-0.24 python-dateutil-2.7.0 python-editor-1.0.3 pyunifi-2.13 requests-2.18.4 six-1.11.0 urllib3-1.22
 ```
+Во время инсталяции пакетов получим несколько сообщений: 
+> Failed building wheel for MarkupSafe  
+Честно, не знаю что это значит, но работе приложения это не мешает.
 
 Библиотека python-smpplib отсутствует в репозиториях PIP, поэтому ставим отдельно с github-а
 
@@ -82,7 +94,7 @@ Installing collected packages: python-smpplib
   Running setup.py install for python-smpplib ... done
 Successfully installed python-smpplib-1.0.1
 ```
-
+#### 3. Инициализация БД
 Далее нужно инициализировать базу данных SQLite
 ```
 (venv) ✔ ~/python/flask/captive [master|✚ 2] 
@@ -112,3 +124,179 @@ INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
 INFO  [alembic.runtime.migration] Running upgrade  -> 920de77b9b2e, empty message
 ```
 если при миграции лезут ошибки - достаточно грохнуть старую базу данных *captive/app.db*
+
+#### 4. Пробный запуск приложения
+Теперь пора запустить приложение и убелиться, что приложение развернуто правильно и все зависимости соблюдены
+
+```
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# flask run
+ * Serving Flask app "captive"
+ * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+```
+
+#### 5. Настройка apache2 и мод WSGI
+
+Пора научить apache2 запускать наше приложение. Для этого используется модуль **wsgi**  
+Конфигурация для этого модуля находится в файле captive-apache.conf
+Скопируем этот файл в /etc/apache2/sites-enabled а так же сделаем наш сайт сайтом по умолчанию.
+Дак же необходимо активировать модуль **wsgi**
+
+```
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# cp captive-apache.conf /etc/apache2/sites-enabled/
+
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# a2dissite 000-default
+Site 000-default disabled.
+To activate the new configuration, you need to run:
+  service apache2 reload
+  
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# a2ensite captive-apache
+Enabling site captive-apache.
+To activate the new configuration, you need to run:
+  service apache2 reload
+
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# a2enmod wsgi
+Enabling module wsgi.
+To activate the new configuration, you need to run:
+  service apache2 restart
+
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# service apache2 restart
+```
+
+Готово! Наше приложение должно заработать на 80-м порту
+
+
+-----
+
+
+## Установка и настройка контроллера UniFi
+
+Контроллер может быть установлен отдельно от приложения.  
+Одно единственное требование: приложение должно иметь доступ к контроллеру по порту 8443 для авторизации пользователей.
+
+#### Устанока контроллера на Ubuntu Linux 16.04
+Проходим по ссылке https://www.ubnt.com/download/unifi и выбираем версию контроллера
+Скачиваем контроллер
+```
+nryzhkov@s-mf44-wlc:~$ wget http://dl.ubnt.com/unifi/5.7.20/unifi_sysvinit_all.deb 
+Connecting to dl.ubnt.com (dl.ubnt.com)|54.192.99.193|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 64551764 (62M) [application/x-debian-package]
+Saving to: ‘unifi_sysvinit_all.deb’
+
+unifi_sysvinit_all.deb               100%[=====================================================================>]  61,56M  2,97MB/s    in 20s     
+
+2018-04-02 14:13:56 (3,15 MB/s) - ‘unifi_sysvinit_all.deb’ saved [64551764/64551764]
+```
+И устанавливаем
+```
+nryzhkov@s-mf44-wlc:~$ sudo dpkg -i unifi_sysvinit_all.deb 
+Selecting previously unselected package unifi.
+(Reading database ... 96207 files and directories currently installed.)
+Preparing to unpack unifi_sysvinit_all.deb ...
+Unpacking unifi (5.7.20-10627) ...
+dpkg: dependency problems prevent configuration of unifi:
+ unifi depends on binutils; however:
+  Package binutils is not installed.
+ unifi depends on jsvc; however:
+  Package jsvc is not installed.
+ unifi depends on mongodb-server (>= 2.4.10) | mongodb-10gen (>= 2.4.14) | mongodb-org-server (>= 2.6.0); however:
+  Package mongodb-server is not installed.
+  Package mongodb-10gen is not installed.
+  Package mongodb-org-server is not installed.
+ unifi depends on java8-runtime-headless; however:
+  Package java8-runtime-headless is not installed.
+
+dpkg: error processing package unifi (--install):
+ dependency problems - leaving unconfigured
+Processing triggers for systemd (229-4ubuntu21.2) ...
+Processing triggers for ureadahead (0.100.0-19) ...
+Errors were encountered while processing:
+ unifi
+```
+Из-за отсутствия зависимых пакетов установка завершается ошибкой.  
+Исправляем эту неприятную ситуацию магическим заклинанием:
+```
+nryzhkov@s-mf44-wlc:~$ sudo apt install -f
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Correcting dependencies... Done
+The following additional packages will be installed:
+  binutils ca-certificates-java default-jre-headless fontconfig-config fonts-dejavu-core java-common jsvc libavahi-client3 libavahi-common-data
+  libavahi-common3 libboost-filesystem1.58.0 libboost-program-options1.58.0 libboost-system1.58.0 libboost-thread1.58.0 libcommons-daemon-java
+  libcups2 libfontconfig1 libgoogle-perftools4 libjpeg-turbo8 libjpeg8 liblcms2-2 libnspr4 libnss3 libnss3-nssdb libpcrecpp0v5 libsnappy1v5
+  libtcmalloc-minimal4 libunwind8 libv8-3.14.5 libxi6 libxrender1 libxtst6 libyaml-cpp0.5v5 mongodb-clients mongodb-server openjdk-8-jre-headless
+  x11-common
+Suggested packages:
+  binutils-doc default-jre java-virtual-machine cups-common liblcms2-utils libnss-mdns fonts-dejavu-extra fonts-ipafont-gothic
+  fonts-ipafont-mincho fonts-wqy-microhei fonts-wqy-zenhei fonts-indic
+The following NEW packages will be installed:
+  binutils ca-certificates-java default-jre-headless fontconfig-config fonts-dejavu-core java-common jsvc libavahi-client3 libavahi-common-data
+  libavahi-common3 libboost-filesystem1.58.0 libboost-program-options1.58.0 libboost-system1.58.0 libboost-thread1.58.0 libcommons-daemon-java
+  libcups2 libfontconfig1 libgoogle-perftools4 libjpeg-turbo8 libjpeg8 liblcms2-2 libnspr4 libnss3 libnss3-nssdb libpcrecpp0v5 libsnappy1v5
+  libtcmalloc-minimal4 libunwind8 libv8-3.14.5 libxi6 libxrender1 libxtst6 libyaml-cpp0.5v5 mongodb-clients mongodb-server openjdk-8-jre-headless
+  x11-common
+0 upgraded, 37 newly installed, 0 to remove and 0 not upgraded.
+1 not fully installed or removed.
+Need to get 90,5 MB of archives.
+After this operation, 321 MB of additional disk space will be used.
+Do you want to continue? [Y/n] Y
+```
+
+Нажимаем "Y" устанавливаем и заходим на Unifi Wizard браузером по ссылке:
+> https://wlc-srv:8443/manage/wizard/
+
+
+#### Настройка контроллера для использования External Captive Portal
+В свежеустановленном контроллере проходим Wizard, устанавливаем пароль для пользователя admin 
+
+
+##### Добавляем пользователя для API
+Далее необходимо создать нового пользователя, под которым наше приложение будет управлять авторизацией пользователей. Для чего идем [Admins] -> [Add New Admin]
+
+Теперь нужно заполнить соответствующие поля в файле **captive/config.py**:
+```
+    UNIFI_WLC_IP = '10.0.1.2'
+    UNIFI_WLC_PORT = '8443'
+    UNIFI_WLC_USER = 'admin_api'
+    UNIFI_WLC_PASSW = 'verystrongpassworg'
+    INIFI_WLC_VER = 'v5'
+    UNIFI_WLC_SITE_ID = 'default'
+    UNIFI_WLC_SSL_VERIFY = False
+
+```
+##### Настройка Guest Control
+
+Идем в меню GuestControl    
+Guest Portal : Enable Guest Portal  
+Authentication : External portal server  
+Custom Portal IPv4 Address : IP address на котором мы запустили apache (10.0.1.2)  
+
+Возможно в вашем сценарии так же нужно будет поднастроить **Access Control**    
+Например по умолчанию после авторизации точка не пускает клиента в сеть 192.168/16, что может поставить в тупик при тестировании. Ну по крайней мере я на это попался, поэтому и предупреждаю
+
+##### Создание гостевой сети
+Идем в меню Wireless Networks  
+Нажимаем на Create New Wireless Network и создаем сеть с следующими параметрами:  
+Name/SSID : YORGWARD  
+Enabled : Yes  
+Security : Open  
+Guest Policy : Yes  
+
+На этом все. Остальное в мануле по UniFi контроллеру
+
+
+
+-----
+
+Ой ну ладно ...  
+Вдруг кто не знает как Adoption делается т.е. привязка точек к контроллеру.  
+Миллион способов на самом деле. Я выбрал [**DHCP Option 43**](https://help.ubnt.com/hc/en-us/articles/204909754-UniFi-Device-Adoption-Methods-for-Remote-UniFi-Controllers#DHCP)
+
+Для адреса контроллера 192.168.74.250 получилась такая строка для DHCP сервера на JuniperSRX: 
+```
+set routing-instances INET access address-assignment pool DHCP_AUDI family inet dhcp-attributes option 43 hex-string 0104c0a84afa
+```
+
+Дальше сунуть точку в нужный *VLAN*, скрепкой ткнуть в *Reset* на точке и увидеть точку на UniFi контроллере в раздеде *Devices* (изображение AP похожее на блюдце) в статусе *Pending*.
+
