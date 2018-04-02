@@ -2,6 +2,8 @@
 
 ### Disclaimer: Я не настоящий DevOps, да даже и не знаком ни с одним из них. Так что на зрелость подхода не претендую
 
+## Установка приложения
+
 #### 1. Установка необходимых пакетов
 Приложение публикуется с помощью web-сервера **apache2** и модуля **wsgi** для python3
 Вероятно **apache2** уже есть в системе, а вот модуля **wsgi** может и не быть. В любом случае следующая команда инсталирует и то и другое. Заодно установим **git** и модуль **venv** для **python3**:  
@@ -161,3 +163,78 @@ To activate the new configuration, you need to run:
 ```
 
 Готово! Наше приложение должно заработать на 80-м порту
+
+## Установка и настройка контроллера UniFi
+
+Проходим по ссылке https://www.ubnt.com/download/unifi и выбираем версию контроллера
+Скачиваем контроллер
+```
+nryzhkov@s-mf44-wlc:~$ wget http://dl.ubnt.com/unifi/5.7.20/unifi_sysvinit_all.deb 
+Connecting to dl.ubnt.com (dl.ubnt.com)|54.192.99.193|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 64551764 (62M) [application/x-debian-package]
+Saving to: ‘unifi_sysvinit_all.deb’
+
+unifi_sysvinit_all.deb               100%[=====================================================================>]  61,56M  2,97MB/s    in 20s     
+
+2018-04-02 14:13:56 (3,15 MB/s) - ‘unifi_sysvinit_all.deb’ saved [64551764/64551764]
+```
+И устанавливаем
+```
+nryzhkov@s-mf44-wlc:~$ sudo dpkg -i unifi_sysvinit_all.deb 
+Selecting previously unselected package unifi.
+(Reading database ... 96207 files and directories currently installed.)
+Preparing to unpack unifi_sysvinit_all.deb ...
+Unpacking unifi (5.7.20-10627) ...
+dpkg: dependency problems prevent configuration of unifi:
+ unifi depends on binutils; however:
+  Package binutils is not installed.
+ unifi depends on jsvc; however:
+  Package jsvc is not installed.
+ unifi depends on mongodb-server (>= 2.4.10) | mongodb-10gen (>= 2.4.14) | mongodb-org-server (>= 2.6.0); however:
+  Package mongodb-server is not installed.
+  Package mongodb-10gen is not installed.
+  Package mongodb-org-server is not installed.
+ unifi depends on java8-runtime-headless; however:
+  Package java8-runtime-headless is not installed.
+
+dpkg: error processing package unifi (--install):
+ dependency problems - leaving unconfigured
+Processing triggers for systemd (229-4ubuntu21.2) ...
+Processing triggers for ureadahead (0.100.0-19) ...
+Errors were encountered while processing:
+ unifi
+```
+Из-за отсутствия зависимых пакетов установка завершается ошибкой.  
+Исправляем эту неприятную ситуацию магическим заклинанием:
+```
+nryzhkov@s-mf44-wlc:~$ sudo apt install -f
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Correcting dependencies... Done
+The following additional packages will be installed:
+  binutils ca-certificates-java default-jre-headless fontconfig-config fonts-dejavu-core java-common jsvc libavahi-client3 libavahi-common-data
+  libavahi-common3 libboost-filesystem1.58.0 libboost-program-options1.58.0 libboost-system1.58.0 libboost-thread1.58.0 libcommons-daemon-java
+  libcups2 libfontconfig1 libgoogle-perftools4 libjpeg-turbo8 libjpeg8 liblcms2-2 libnspr4 libnss3 libnss3-nssdb libpcrecpp0v5 libsnappy1v5
+  libtcmalloc-minimal4 libunwind8 libv8-3.14.5 libxi6 libxrender1 libxtst6 libyaml-cpp0.5v5 mongodb-clients mongodb-server openjdk-8-jre-headless
+  x11-common
+Suggested packages:
+  binutils-doc default-jre java-virtual-machine cups-common liblcms2-utils libnss-mdns fonts-dejavu-extra fonts-ipafont-gothic
+  fonts-ipafont-mincho fonts-wqy-microhei fonts-wqy-zenhei fonts-indic
+The following NEW packages will be installed:
+  binutils ca-certificates-java default-jre-headless fontconfig-config fonts-dejavu-core java-common jsvc libavahi-client3 libavahi-common-data
+  libavahi-common3 libboost-filesystem1.58.0 libboost-program-options1.58.0 libboost-system1.58.0 libboost-thread1.58.0 libcommons-daemon-java
+  libcups2 libfontconfig1 libgoogle-perftools4 libjpeg-turbo8 libjpeg8 liblcms2-2 libnspr4 libnss3 libnss3-nssdb libpcrecpp0v5 libsnappy1v5
+  libtcmalloc-minimal4 libunwind8 libv8-3.14.5 libxi6 libxrender1 libxtst6 libyaml-cpp0.5v5 mongodb-clients mongodb-server openjdk-8-jre-headless
+  x11-common
+0 upgraded, 37 newly installed, 0 to remove and 0 not upgraded.
+1 not fully installed or removed.
+Need to get 90,5 MB of archives.
+After this operation, 321 MB of additional disk space will be used.
+Do you want to continue? [Y/n] Y
+```
+
+Нажимаем "Y" устанавливаем и заходим на Unifi Wizard браузером по ссылке:
+> https://wlc-srv:8443/manage/wizard/
+
