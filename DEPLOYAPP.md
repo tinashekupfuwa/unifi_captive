@@ -8,7 +8,7 @@
 Приложение публикуется с помощью web-сервера **apache2** и модуля **wsgi** для python3
 Вероятно **apache2** уже есть в системе, а вот модуля **wsgi** может и не быть. В любом случае следующая команда инсталирует и то и другое. Заодно установим **git** и модуль **venv** для **python3**:  
 ```
-root@aws-ryzhkov2:# apt install apache2 libapache2-mod-wsgi-py3 git python3-venv
+root@wlc-server:# apt install apache2 libapache2-mod-wsgi-py3 git python3-venv
 ```
 
 #### 2. Установка приложения, виртуального окружения и зависимостей
@@ -18,9 +18,9 @@ root@aws-ryzhkov2:# apt install apache2 libapache2-mod-wsgi-py3 git python3-venv
 
 Клонируем код из GIT репозитария в заданную директорию (captive) и сразу в нее проваливаемся:
 ```
-root@aws-ryzhkov2:# mkdir -p /var/www/FLASKAPP
-root@aws-ryzhkov2:# cd !$
-root@aws-ryzhkov2:/var/www/FLASKAPP# git clone http://zabbix.msk.vbrr.loc:3000/nryzhkov/unifi_captive.git captive && cd captive
+root@wlc-server:# mkdir -p /var/www/FLASKAPP
+root@wlc-server:# cd !$
+root@wlc-server:/var/www/FLASKAPP# git clone http://zabbix.msk.vbrr.loc:3000/idqdd/unifi_captive.git captive && cd captive
 Cloning into 'captive'...
 remote: Counting objects: 85, done.
 remote: Compressing objects: 100% (82/82), done.
@@ -32,19 +32,19 @@ Checking connectivity... done.
 
 Разворачиваем виртуальное окружение **venv**
 ```
-root@aws-ryzhkov2:/var/www/FLASKAPP/captive# python3 -m venv venv
+root@wlc-server:/var/www/FLASKAPP/captive# python3 -m venv venv
 ```
 
 Активируем виртуальное окружение:
 ```
-root@aws-ryzhkov2:/var/www/FLASKAPP/captive# source venv/bin/activate
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive#
+root@wlc-server:/var/www/FLASKAPP/captive# source venv/bin/activate
+(venv) root@wlc-server:/var/www/FLASKAPP/captive#
 ```
 
 Устанавливаем все пакеты необходимые для нашего приложения
 (пакеты перечислены в переменной *install_requires* в **setup.py**)
 ```
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# pip install -e .
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# pip install -e .
 Obtaining file:///var/www/FLASKAPP/captive
 Collecting alembic (from captive-protal===0.1)
 Collecting Flask (from captive-protal===0.1)
@@ -86,7 +86,7 @@ Successfully installed Flask-0.12.2 Flask-Login-0.4.1 Flask-Migrate-2.1.1 Flask-
 Библиотека python-smpplib отсутствует в репозиториях PIP, поэтому ставим отдельно с github-а
 
 ```
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# pip install git+https://github.com/podshumok/python-smpplib.git
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# pip install git+https://github.com/podshumok/python-smpplib.git
 Collecting git+https://github.com/podshumok/python-smpplib.git
   Cloning https://github.com/podshumok/python-smpplib.git to /tmp/pip-tkhjpgrb-build
 Requirement already satisfied (use --upgrade to upgrade): six in ./venv/lib/python3.5/site-packages (from python-smpplib===1.0.1)
@@ -101,13 +101,13 @@ Successfully installed python-smpplib-1.0.1
 17:19 $ export FLASK_APP=captive/__init__.py
 (venv) ✔ ~/python/flask/captive [master|✚ 2] 
 17:19 $ flask db init
-  Creating directory /home/nryzhkov/python/flask/captive/migrations ... done
-  Creating directory /home/nryzhkov/python/flask/captive/migrations/versions ... done
-  Generating /home/nryzhkov/python/flask/captive/migrations/script.py.mako ... done
-  Generating /home/nryzhkov/python/flask/captive/migrations/README ... done
-  Generating /home/nryzhkov/python/flask/captive/migrations/alembic.ini ... done
-  Generating /home/nryzhkov/python/flask/captive/migrations/env.py ... done
-  Please edit configuration/connection/logging settings in '/home/nryzhkov/python/flask/captive/migrations/alembic.ini' before proceeding.
+  Creating directory /home/idqdd/python/flask/captive/migrations ... done
+  Creating directory /home/idqdd/python/flask/captive/migrations/versions ... done
+  Generating /home/idqdd/python/flask/captive/migrations/script.py.mako ... done
+  Generating /home/idqdd/python/flask/captive/migrations/README ... done
+  Generating /home/idqdd/python/flask/captive/migrations/alembic.ini ... done
+  Generating /home/idqdd/python/flask/captive/migrations/env.py ... done
+  Please edit configuration/connection/logging settings in '/home/idqdd/python/flask/captive/migrations/alembic.ini' before proceeding.
 (venv) ✔ ~/python/flask/captive [master|✚ 2…4]  
 17:20 $ flask db migrate
 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
@@ -116,7 +116,7 @@ INFO  [alembic.autogenerate.compare] Detected added table 'user'
 INFO  [alembic.autogenerate.compare] Detected added index 'ix_user_mac' on '['mac']'
 INFO  [alembic.autogenerate.compare] Detected added table 'auth'
 INFO  [alembic.autogenerate.compare] Detected added index 'ix_auth_timestamp' on '['timestamp']'
-  Generating /home/nryzhkov/python/flask/captive/migrations/versions/920de77b9b2e_.py ... done
+  Generating /home/idqdd/python/flask/captive/migrations/versions/920de77b9b2e_.py ... done
 (venv) ✔ ~/python/flask/captive [master|✚ 3…5] 
 17:20 $ flask db upgrade
 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
@@ -129,7 +129,7 @@ INFO  [alembic.runtime.migration] Running upgrade  -> 920de77b9b2e, empty messag
 Теперь пора запустить приложение и убелиться, что приложение развернуто правильно и все зависимости соблюдены
 
 ```
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# flask run
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# flask run
  * Serving Flask app "captive"
  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 ```
@@ -142,24 +142,24 @@ INFO  [alembic.runtime.migration] Running upgrade  -> 920de77b9b2e, empty messag
 Дак же необходимо активировать модуль **wsgi**
 
 ```
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# cp captive-apache.conf /etc/apache2/sites-enabled/
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# cp captive-apache.conf /etc/apache2/sites-enabled/
 
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# a2dissite 000-default
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# a2dissite 000-default
 Site 000-default disabled.
 To activate the new configuration, you need to run:
   service apache2 reload
   
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# a2ensite captive-apache
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# a2ensite captive-apache
 Enabling site captive-apache.
 To activate the new configuration, you need to run:
   service apache2 reload
 
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# a2enmod wsgi
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# a2enmod wsgi
 Enabling module wsgi.
 To activate the new configuration, you need to run:
   service apache2 restart
 
-(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# service apache2 restart
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# service apache2 restart
 ```
 
 Готово! Наше приложение должно заработать на 80-м порту
@@ -177,7 +177,7 @@ To activate the new configuration, you need to run:
 Проходим по ссылке https://www.ubnt.com/download/unifi и выбираем версию контроллера
 Скачиваем контроллер
 ```
-nryzhkov@s-mf44-wlc:~$ wget http://dl.ubnt.com/unifi/5.7.20/unifi_sysvinit_all.deb 
+idqdd@wlc-server:~$ wget http://dl.ubnt.com/unifi/5.7.20/unifi_sysvinit_all.deb 
 Connecting to dl.ubnt.com (dl.ubnt.com)|54.192.99.193|:80... connected.
 HTTP request sent, awaiting response... 200 OK
 Length: 64551764 (62M) [application/x-debian-package]
@@ -189,7 +189,7 @@ unifi_sysvinit_all.deb               100%[======================================
 ```
 И устанавливаем
 ```
-nryzhkov@s-mf44-wlc:~$ sudo dpkg -i unifi_sysvinit_all.deb 
+idqdd@wlc-server:~$ sudo dpkg -i unifi_sysvinit_all.deb 
 Selecting previously unselected package unifi.
 (Reading database ... 96207 files and directories currently installed.)
 Preparing to unpack unifi_sysvinit_all.deb ...
@@ -216,7 +216,7 @@ Errors were encountered while processing:
 Из-за отсутствия зависимых пакетов установка завершается ошибкой.  
 Исправляем эту неприятную ситуацию магическим заклинанием:
 ```
-nryzhkov@s-mf44-wlc:~$ sudo apt install -f
+idqdd@wlc-server:~$ sudo apt install -f
 Reading package lists... Done
 Building dependency tree       
 Reading state information... Done
@@ -295,7 +295,7 @@ Guest Policy : Yes
 
 Для адреса контроллера 192.168.74.250 получилась такая строка для DHCP сервера на JuniperSRX: 
 ```
-set routing-instances INET access address-assignment pool DHCP_AUDI family inet dhcp-attributes option 43 hex-string 0104c0a84afa
+set routing-instances INET access address-assignment pool DHCP_WLAN family inet dhcp-attributes option 43 hex-string 0104c0a84afa
 ```
 
 Дальше сунуть точку в нужный *VLAN*, скрепкой ткнуть в *Reset* на точке и увидеть точку на UniFi контроллере в раздеде *Devices* (изображение AP похожее на блюдце) в статусе *Pending*.
