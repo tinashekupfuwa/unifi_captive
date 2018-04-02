@@ -278,10 +278,10 @@ Custom Portal IPv4 Address : IP address на котором мы запусти�
 ##### Создание гостевой сети
 Идем в меню Wireless Networks  
 Нажимаем на Create New Wireless Network и создаем сеть с следующими параметрами:  
-Name/SSID : YORGWARD
-Enabled : Yes
-Security : Open
-Guest Policy : Yes
+Name/SSID : YORGWARD  
+Enabled : Yes  
+Security : Open  
+Guest Policy : Yes  
 
 На этом все. Остальное в мануле по UniFi контроллеру
 
