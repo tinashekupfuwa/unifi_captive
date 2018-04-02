@@ -2,8 +2,15 @@
 
 ### Disclaimer: Я не настоящий DevOps, да даже и не знаком ни с одним из них. Так что на зрелость подхода не претендую
 
-Приложение публикуется с помощью web-сервера **apache2** и модуля **wsgi** 
-для простоты и удобства разместим его в папке */var/www/FLASKAPP*
+#### 1. Установка необходимых пакетов
+Приложение публикуется с помощью web-сервера **apache2** и модуля **wsgi** для python3
+Вероятно **apache2** уже есть в системе, а вот модуля **wsgi** может и не быть. В любом случае следующая команда инсталирует и то и другое. Заодно установим **git** и модуль **venv** для **python3**:  
+```
+root@aws-ryzhkov2:# apt install apache2 libapache2-mod-wsgi-py3 git python3-venv
+```
+
+#### 2. Установка приложения, виртуального окружения и зависимостей
+Для простоты и удобства разместим наше приложение в папке */var/www/FLASKAPP*
 Доступ в эту папку требует root-овых привелегий, но как говорится для поиграться и так сойдет
 
 
@@ -70,6 +77,9 @@ Collecting Werkzeug (from captive-protal===0.1)
     
 Successfully installed Flask-0.12.2 Flask-Login-0.4.1 Flask-Migrate-2.1.1 Flask-SQLAlchemy-2.3.2 Flask-WTF-0.14.2 Jinja2-2.10 Mako-1.0.7 MarkupSafe-1.0 SQLAlchemy-1.2.5 WTForms-2.1 Werkzeug-0.14.1 alembic-0.9.9 captive-protal certifi-2018.1.18 chardet-3.0.4 click-6.7 idna-2.6 itsdangerous-0.24 python-dateutil-2.7.0 python-editor-1.0.3 pyunifi-2.13 requests-2.18.4 six-1.11.0 urllib3-1.22
 ```
+Во время инсталяции пакетов получим несколько сообщений: 
+> Failed building wheel for MarkupSafe  
+Честно, не знаю что это значит, но работе приложения это не мешает.
 
 Библиотека python-smpplib отсутствует в репозиториях PIP, поэтому ставим отдельно с github-а
 
@@ -82,7 +92,7 @@ Installing collected packages: python-smpplib
   Running setup.py install for python-smpplib ... done
 Successfully installed python-smpplib-1.0.1
 ```
-
+#### 3. Инициализация БД
 Далее нужно инициализировать базу данных SQLite
 ```
 (venv) ✔ ~/python/flask/captive [master|✚ 2] 
@@ -112,3 +122,42 @@ INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
 INFO  [alembic.runtime.migration] Running upgrade  -> 920de77b9b2e, empty message
 ```
 если при миграции лезут ошибки - достаточно грохнуть старую базу данных *captive/app.db*
+
+#### 4. Пробный запуск приложения
+Теперь пора запустить приложение и убелиться, что приложение развернуто правильно и все зависимости соблюдены
+
+```
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# flask run
+ * Serving Flask app "captive"
+ * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+```
+
+#### 5. Настройка apache2 и мод WSGI
+
+Пора научить apache2 запускать наше приложение. Для этого используется модуль **wsgi**  
+Конфигурация для этого модуля находится в файле captive-apache.conf
+Скопируем этот файл в /etc/apache2/sites-enabled а так же сделаем наш сайт сайтом по умолчанию.
+Дак же необходимо активировать модуль **wsgi**
+
+```
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# cp captive-apache.conf /etc/apache2/sites-enabled/
+
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# a2dissite 000-default
+Site 000-default disabled.
+To activate the new configuration, you need to run:
+  service apache2 reload
+  
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# a2ensite captive-apache
+Enabling site captive-apache.
+To activate the new configuration, you need to run:
+  service apache2 reload
+
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# a2enmod wsgi
+Enabling module wsgi.
+To activate the new configuration, you need to run:
+  service apache2 restart
+
+(venv) root@aws-ryzhkov2:/var/www/FLASKAPP/captive# service apache2 restart
+```
+
+Готово! Наше приложение должно заработать на 80-м порту
