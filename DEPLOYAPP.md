@@ -291,10 +291,12 @@ Guest Policy : Yes
 
 Ой ну ладно ...  
 Вдруг кто не знает как Adoption делается т.е. привязка точек к контроллеру.  
-Миллион способов на самом деле. Я выбрад DHCP Option 43 https://help.ubnt.com/hc/en-us/articles/204909754-UniFi-Device-Adoption-Methods-for-Remote-UniFi-Controllers#DHCP
+Миллион способов на самом деле. Я выбрал [**DHCP Option 43**](https://help.ubnt.com/hc/en-us/articles/204909754-UniFi-Device-Adoption-Methods-for-Remote-UniFi-Controllers#DHCP)
 
-Для адреса контроллера 192.168.74.250 получилась такая строка для DHCP сервера на JuniperSRX:  
+Для адреса контроллера 192.168.74.250 получилась такая строка для DHCP сервера на JuniperSRX: 
+```
 set routing-instances INET access address-assignment pool DHCP_AUDI family inet dhcp-attributes option 43 hex-string 0104c0a84afa
+```
 
-Дальше сунуть точку в нужный VLAN, скрепкой ткнуть в Reset на точке и увидеть точку на UniFi контроллере в раздеде Devices (изображение AP похожее на блюдце) в статусе Pending.
+Дальше сунуть точку в нужный *VLAN*, скрепкой ткнуть в *Reset* на точке и увидеть точку на UniFi контроллере в раздеде *Devices* (изображение AP похожее на блюдце) в статусе *Pending*.
 
