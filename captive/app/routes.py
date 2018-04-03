@@ -135,7 +135,7 @@ def register():
         pin = generate_pin()                
         print (user.id, phone, pin, ap_mac, ip_addr, requested_url, domain, ssid) #debug
 
-        auth = Auth(phone = phone, pin = pin, ap_mac = ap_mac, ip_addr = ip_addr, requested_url = requested_url, domain = domain, ssid = ssid, auth = user)
+        auth = Auth(phone = phone, pin = pin, ap_mac = ap_mac, ip_addr = ip_addr, requested_url = requested_url, domain = domain, ssid = ssid, logged_in = 0 ,auth = user)
         db.session.add(auth)
         db.session.commit()
         
