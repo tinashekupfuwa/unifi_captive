@@ -4,8 +4,11 @@
     <h1>User: {{ mac }}</h1>
     <hr>
     {% for pin in pins %}
-    <div class=add-entry><p>
-      pin: <b>{{ pin.pin }}</b>, phone: <b>+7{{ pin.phone }}</b>, timestamp: <b>{{ pin.timestamp }}</b></p>
+    <div class="row">
+      <div class="col-md-4">phone: +7{{ pin.phone }}</div>    
+      <div class="col-md-3">ip: {{ pin.ip }}</div>
+      <div class="col-md-2">pin: {{ pin.pin }}</div> 
+      <div class="col-md-3">timestamp: {{ pin.timestamp }}</div>
     </div>
     {% endfor %}
     <div><p><a href="{{ url_for('admin') }}">Назад</a></p></div>

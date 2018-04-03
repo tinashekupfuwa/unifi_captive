@@ -28,8 +28,11 @@ def init(domain):
 def index():   
     user = User.query.filter_by(id=current_user.get_id()).first()
     auth = Auth.query.filter_by(auth=user).order_by(Auth.timestamp.desc()).first()
-    requested_url = unquote(auth.requested_url)
-    print (requested_url)
+    if not auth.requested_url:
+        requested_url = "http://vbrr.ru"
+    else:    
+        requested_url = unquote(auth.requested_url)
+        print (requested_url)
     return render_template('index.html', title='Home', requested_url=requested_url)
 
 
@@ -156,7 +159,7 @@ def user(username):
     p = Auth.query.filter_by(auth=user)
     pins=[]
     for x in p:
-        pins.append({'pin': x.pin, 'timestamp': x.timestamp, 'phone': x.phone })
+        pins.append({'pin': x.pin, 'timestamp': x.timestamp, 'phone': x.phone, 'ip': x.ip_addr })
         
     return render_template('user.html', mac=user.mac, pins=pins)
 
