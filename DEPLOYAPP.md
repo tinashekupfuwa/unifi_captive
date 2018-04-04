@@ -95,12 +95,15 @@ Installing collected packages: python-smpplib
 Successfully installed python-smpplib-1.0.1
 ```
 #### 3. Инициализация БД
-Далее нужно инициализировать базу данных SQLite
+В тестовых целях можно воспользоваться базой из репозитория  
+Но в любом случае необходимо дать права для процесса *apache2* на изменение *файла captive/app.db*
+
+Инициализировать базу данных SQLite следующим образом:
+
 ```
-(venv) ✔ ~/python/flask/captive [master|✚ 2] 
-17:19 $ export FLASK_APP=captive/__init__.py
-(venv) ✔ ~/python/flask/captive [master|✚ 2] 
-17:19 $ flask db init
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# rm -rf migrations captive/app.db
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# export FLASK_APP=captive/__init__.py
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# flask db init
   Creating directory /home/idqdd/python/flask/captive/migrations ... done
   Creating directory /home/idqdd/python/flask/captive/migrations/versions ... done
   Generating /home/idqdd/python/flask/captive/migrations/script.py.mako ... done
@@ -108,8 +111,8 @@ Successfully installed python-smpplib-1.0.1
   Generating /home/idqdd/python/flask/captive/migrations/alembic.ini ... done
   Generating /home/idqdd/python/flask/captive/migrations/env.py ... done
   Please edit configuration/connection/logging settings in '/home/idqdd/python/flask/captive/migrations/alembic.ini' before proceeding.
-(venv) ✔ ~/python/flask/captive [master|✚ 2…4]  
-17:20 $ flask db migrate
+  
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# flask db migrate
 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
 INFO  [alembic.autogenerate.compare] Detected added table 'user'
@@ -117,13 +120,12 @@ INFO  [alembic.autogenerate.compare] Detected added index 'ix_user_mac' on '['ma
 INFO  [alembic.autogenerate.compare] Detected added table 'auth'
 INFO  [alembic.autogenerate.compare] Detected added index 'ix_auth_timestamp' on '['timestamp']'
   Generating /home/idqdd/python/flask/captive/migrations/versions/920de77b9b2e_.py ... done
-(venv) ✔ ~/python/flask/captive [master|✚ 3…5] 
-17:20 $ flask db upgrade
+  
+(venv) root@wlc-server:/var/www/FLASKAPP/captive# flask db upgrade
 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
 INFO  [alembic.runtime.migration] Running upgrade  -> 920de77b9b2e, empty message
 ```
-если при миграции лезут ошибки - достаточно грохнуть старую базу данных *captive/app.db*
 
 #### 4. Пробный запуск приложения
 Теперь пора запустить приложение и убелиться, что приложение развернуто правильно и все зависимости соблюдены
