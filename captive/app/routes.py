@@ -63,7 +63,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
 
-        if form.pin.data == 123456:
+        if form.pin.data == "123456":
             user = User.query.filter_by(id=1).first()
             login_user(user, remember=True)
             return redirect(url_for('admin'))    
@@ -139,6 +139,11 @@ def register():
         db.session.add(auth)
         db.session.commit()
         
+        if phone[:3] == "900":
+            msg = 'SMS не посылалась. Используйте код (' + pin + ')'
+            flash(msg) 
+            return redirect(url_for('login'))
+
         if(send_sms(phone, pin)):
             msg = 'SMS with a code (' + pin + ') has been sent'
             print(msg)
