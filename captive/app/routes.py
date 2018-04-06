@@ -82,17 +82,10 @@ def login():
         db.session.commit()
         user = User.query.filter_by(id=auth.user_id).first()
 
-        login_user(user, remember=True)
-        
-        # authorize on an UniFi controller       
-        c = Controller(app.config['UNIFI_WLC_IP'], app.config['UNIFI_WLC_USER'], 
-            app.config['UNIFI_WLC_PASSW'], app.config['UNIFI_WLC_PORT'], app.config['INIFI_WLC_VER'], 
-            app.config['UNIFI_WLC_SITE_ID'], app.config['UNIFI_WLC_SSL_VERIFY'])
+        if LoginUserOnController (user.mac):
+            login_user(user, remember=True)
+            return redirect((url_for)('index'))
 
-        c.authorize_guest(user.mac, app.config['TIME_QOUTE'], 
-            up_bandwidth=None, down_bandwidth=None, byte_quota=None, ap_mac=None)
-        
-        return redirect((url_for)('index'))
     return render_template('login.html', title='Sign In', form=form)
 
 
@@ -253,6 +246,18 @@ def UserWasLoggedInRecently(mac):
         CurrentTime = datetime.datetime.utcnow()
         if int(auth.logged_in) > 0:
             if (auth.timestamp + datetime.timedelta(minutes=int(app.config['TIME_QOUTE'])) > CurrentTime):        
-                login_user(user, remember=True)
-                return True
+                if LoginUserOnController(user.mac):
+                    login_user(user, remember=True)
+                    return True
     return False
+
+def LoginUserOnController(mac):
+    # authorize on an UniFi controller       
+    c = Controller(app.config['UNIFI_WLC_IP'], app.config['UNIFI_WLC_USER'], 
+        app.config['UNIFI_WLC_PASSW'], app.config['UNIFI_WLC_PORT'], app.config['INIFI_WLC_VER'], 
+        app.config['UNIFI_WLC_SITE_ID'], app.config['UNIFI_WLC_SSL_VERIFY'])
+
+    c.authorize_guest(mac, app.config['TIME_QOUTE'], 
+        up_bandwidth=None, down_bandwidth=None, byte_quota=None, ap_mac=None)
+       
+    return True
