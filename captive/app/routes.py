@@ -114,11 +114,13 @@ def register():
     print ('query_string: {}\n mac: {}, ap_mac: {}; ip address: {}\n domain: {}, ssid: {}, requested_url: {}'.\
         format(query_string, mac, ap_mac, ip_addr, domain, ssid, requested_url))
 
+# for debug. has to be removed in production
     if not query_string:
-        mac = get_guest_mac()
-        ap_mac = get_ap_mac()
+        mac = "aa:aa:aa:aa:aa:aa"
+        ap_mac = "bb:bb:bb:bb:bb:bb"
 
 # make sure this user (mac) was not logged in recently
+# and 
     if UserWasLoggedInRecently(mac):
         return redirect((url_for)('index'))
 
@@ -183,18 +185,6 @@ def generate_pin():
     return ''.join(r)
 
 
-def get_guest_mac():
-    # will be retrieved from a controller url context
-    # so now a test mac would be hardcoded
-    return "aa:aa:aa:aa:aa:aa"
-
-
-def get_ap_mac():
-    # will be retrieved from a controller url context
-    # so now a test mac would be hardcoded
-    return "bb:bb:bb:bb:bb:bb"
-
-
 def send_sms(dest,string):
     
     if app.config['SMS_ENABLE'] == 0:
@@ -253,6 +243,9 @@ def send_sms(dest,string):
 def checkPinNotEpired(time):
     return True
 
+# if a user has been logged in in a time range of TIME_QUOTE 
+# but the application forgot its session (has been restarted or something)
+# we have to logg the user back with no user interaction
 def UserWasLoggedInRecently(mac):
     user = User.query.filter_by(mac = mac).first()
     if user is not None:
@@ -260,5 +253,6 @@ def UserWasLoggedInRecently(mac):
         CurrentTime = datetime.datetime.utcnow()
         if int(auth.logged_in) > 0:
             if (auth.timestamp + datetime.timedelta(minutes=int(app.config['TIME_QOUTE'])) > CurrentTime):        
+                login_user(user, remember=True)
                 return True
     return False
