@@ -4,4 +4,6 @@ __pycache__/
 *$py.class
 *swp
 *.egg-info/
+migrations/
+captive/app.db
 
