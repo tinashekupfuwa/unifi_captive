@@ -28,8 +28,11 @@ def init(domain):
 def index():   
     user = User.query.filter_by(id=current_user.get_id()).first()
     auth = Auth.query.filter_by(auth=user).order_by(Auth.timestamp.desc()).first()
-    requested_url = unquote(auth.requested_url)
-    print (requested_url)
+    if not auth.requested_url:
+        requested_url = "http://vbrr.ru"
+    else:    
+        requested_url = unquote(auth.requested_url)
+        print (requested_url)
     return render_template('index.html', title='Home', requested_url=requested_url)
 
 
@@ -38,12 +41,11 @@ def logout():
     if not current_user.is_authenticated: 
         return
     user = User.query.filter_by(id=current_user.get_id()).first()
-    auth = Auth.query.filter_by(auth=user).first()
-    print("logout user id:{}, mac:{}, ap_mac:{}".format(current_user.get_id(), user.mac, auth.ap_mac))
-
+    auth = Auth.query.filter_by(auth=user).order_by(Auth.timestamp.desc()).first()
     auth.logged_in = 0
     db.session.commit()
     logout_user()
+    print("logged out user id:{}, mac:{}, ap_mac:{}".format(current_user.get_id(), user.mac, auth.ap_mac))
 
     c = Controller(app.config['UNIFI_WLC_IP'], app.config['UNIFI_WLC_USER'], 
             app.config['UNIFI_WLC_PASSW'], app.config['UNIFI_WLC_PORT'], app.config['INIFI_WLC_VER'], 
@@ -60,7 +62,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
 
-        if form.pin.data == 123456:
+        if form.pin.data == "123456":
             user = User.query.filter_by(id=1).first()
             login_user(user, remember=True)
             return redirect(url_for('admin'))    
@@ -79,17 +81,10 @@ def login():
         db.session.commit()
         user = User.query.filter_by(id=auth.user_id).first()
 
-        login_user(user, remember=True)
-        
-        # authorize on an UniFi controller       
-        c = Controller(app.config['UNIFI_WLC_IP'], app.config['UNIFI_WLC_USER'], 
-            app.config['UNIFI_WLC_PASSW'], app.config['UNIFI_WLC_PORT'], app.config['INIFI_WLC_VER'], 
-            app.config['UNIFI_WLC_SITE_ID'], app.config['UNIFI_WLC_SSL_VERIFY'])
+        if LoginUserOnController (user.mac):
+            login_user(user, remember=True)
+            return redirect((url_for)('index'))
 
-        c.authorize_guest(user.mac, app.config['TIME_QOUTE'], 
-            up_bandwidth=None, down_bandwidth=None, byte_quota=None, ap_mac=None)
-        
-        return redirect((url_for)('index'))
     return render_template('login.html', title='Sign In', form=form)
 
 
@@ -111,11 +106,13 @@ def register():
     print ('query_string: {}\n mac: {}, ap_mac: {}; ip address: {}\n domain: {}, ssid: {}, requested_url: {}'.\
         format(query_string, mac, ap_mac, ip_addr, domain, ssid, requested_url))
 
+# for debug. has to be removed in production
     if not query_string:
-        mac = get_guest_mac()
-        ap_mac = get_ap_mac()
+        mac = "aa:aa:aa:aa:aa:aa"
+        ap_mac = "bb:bb:bb:bb:bb:bb"
 
 # make sure this user (mac) was not logged in recently
+# and 
     if UserWasLoggedInRecently(mac):
         return redirect((url_for)('index'))
 
@@ -132,10 +129,15 @@ def register():
         pin = generate_pin()                
         print (user.id, phone, pin, ap_mac, ip_addr, requested_url, domain, ssid) #debug
 
-        auth = Auth(phone = phone, pin = pin, ap_mac = ap_mac, ip_addr = ip_addr, requested_url = requested_url, domain = domain, ssid = ssid, auth = user)
+        auth = Auth(phone = phone, pin = pin, ap_mac = ap_mac, ip_addr = ip_addr, requested_url = requested_url, domain = domain, ssid = ssid, logged_in = 0 ,auth = user)
         db.session.add(auth)
         db.session.commit()
         
+        if phone[:3] == "900":
+            msg = 'SMS не посылалась. Используйте код (' + pin + ')'
+            flash(msg) 
+            return redirect(url_for('login'))
+
         if(send_sms(phone, pin)):
             msg = 'SMS with a code (' + pin + ') has been sent'
             print(msg)
@@ -156,7 +158,7 @@ def user(username):
     p = Auth.query.filter_by(auth=user)
     pins=[]
     for x in p:
-        pins.append({'pin': x.pin, 'timestamp': x.timestamp, 'phone': x.phone })
+        pins.append({'pin': x.pin, 'timestamp': x.timestamp, 'phone': x.phone, 'ip': x.ip_addr })
         
     return render_template('user.html', mac=user.mac, pins=pins)
 
@@ -173,18 +175,6 @@ def generate_pin():
     r = []
     r = [str(randint(0,9)) for x in range(6)]
     return ''.join(r)
-
-
-def get_guest_mac():
-    # will be retrieved from a controller url context
-    # so now a test mac would be hardcoded
-    return "aa:aa:aa:aa:aa:aa"
-
-
-def get_ap_mac():
-    # will be retrieved from a controller url context
-    # so now a test mac would be hardcoded
-    return "bb:bb:bb:bb:bb:bb"
 
 
 def send_sms(dest,string):
@@ -245,6 +235,9 @@ def send_sms(dest,string):
 def checkPinNotEpired(time):
     return True
 
+# if a user has been logged in in a time range of TIME_QUOTE 
+# but the application forgot its session (has been restarted or something)
+# we have to logg the user back with no user interaction
 def UserWasLoggedInRecently(mac):
     user = User.query.filter_by(mac = mac).first()
     if user is not None:
@@ -252,5 +245,18 @@ def UserWasLoggedInRecently(mac):
         CurrentTime = datetime.datetime.utcnow()
         if int(auth.logged_in) > 0:
             if (auth.timestamp + datetime.timedelta(minutes=int(app.config['TIME_QOUTE'])) > CurrentTime):        
-                return True
+                if LoginUserOnController(user.mac):
+                    login_user(user, remember=True)
+                    return True
     return False
+
+def LoginUserOnController(mac):
+    # authorize on an UniFi controller       
+    c = Controller(app.config['UNIFI_WLC_IP'], app.config['UNIFI_WLC_USER'], 
+        app.config['UNIFI_WLC_PASSW'], app.config['UNIFI_WLC_PORT'], app.config['INIFI_WLC_VER'], 
+        app.config['UNIFI_WLC_SITE_ID'], app.config['UNIFI_WLC_SSL_VERIFY'])
+
+    c.authorize_guest(mac, app.config['TIME_QOUTE'], 
+        up_bandwidth=None, down_bandwidth=None, byte_quota=None, ap_mac=None)
+       
+    return True

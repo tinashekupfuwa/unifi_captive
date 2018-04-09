@@ -3,6 +3,7 @@
 {% block content %}
     <div class="form-group">
         <div class="alert alert-info">Для получения по SMS кода доступа введите номер Вашего мобильного телефона: </div>
+        <div class="alert alert-danger">На телефоны начинающиеся с 900... SMS не посылаются (для тестирования)</div>
         <form action="" method="post">
             {{ form.hidden_tag() }}
             <p>

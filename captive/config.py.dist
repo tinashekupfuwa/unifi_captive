@@ -20,7 +20,7 @@ class Config(object):
     UNIFI_WLC_SITE_ID = 'default'
     UNIFI_WLC_SSL_VERIFY = False
 
-    TIME_QOUTE = '60'
+    TIME_QOUTE = '1440'  24 # hours
 
     SMS_ENABLE = 0
     SMPP_SERVER = '22.22.22'
@@ -28,3 +28,4 @@ class Config(object):
     SMPP_USER = 'smppuser'
     SMPP_PASSW = 'smppasw'
     SMPP_SOURCE = 'smpp_source'
+
