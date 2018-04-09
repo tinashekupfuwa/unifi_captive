@@ -41,12 +41,11 @@ def logout():
     if not current_user.is_authenticated: 
         return
     user = User.query.filter_by(id=current_user.get_id()).first()
-    auth = Auth.query.filter_by(auth=user).first()
-    print("logout user id:{}, mac:{}, ap_mac:{}".format(current_user.get_id(), user.mac, auth.ap_mac))
-
+    auth = Auth.query.filter_by(auth=user).order_by(Auth.timestamp.desc()).first()
     auth.logged_in = 0
     db.session.commit()
     logout_user()
+    print("logged out user id:{}, mac:{}, ap_mac:{}".format(current_user.get_id(), user.mac, auth.ap_mac))
 
     c = Controller(app.config['UNIFI_WLC_IP'], app.config['UNIFI_WLC_USER'], 
             app.config['UNIFI_WLC_PASSW'], app.config['UNIFI_WLC_PORT'], app.config['INIFI_WLC_VER'], 
